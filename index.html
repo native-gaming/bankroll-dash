@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBTC Bankroll Interface</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #f7931a; /* Bitcoin orange */
+            --secondary-color: #0d6efd;
+            --background-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #212529;
+            --border-radius: 10px;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        
+        .container {
+            max-width: 1000px;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .logo {
+            max-width: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            border: none;
+        }
+        
+        .card-body {
+            padding: 20px;
+            background-color: var(--card-bg-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 6px;
+            font-weight: 600;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e58220;
+            border-color: #e58220;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            border-radius: 6px;
+            font-weight: 600;
+            padding: 8px 16px;
+        }
+        
+        .btn-outline-secondary {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            border-radius: 6px;
+        }
+        
+        .form-control {
+            border-radius: 6px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+        }
+        
+        .balance-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .balance-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .balance-value {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #212529;
+        }
+        
+        #status {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .status-icon {
+            margin-right: 10px;
+        }
+        
+        .success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border-left: 4px solid #0f5132;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #842029;
+            border-left: 4px solid #842029;
+        }
+        
+        .loading {
+            background-color: #cff4fc;
+            color: #055160;
+            border-left: 4px solid #055160;
+        }
+        
+        .address-display {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 0.9rem;
+            color: #495057;
+            border: 1px solid #ced4da;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .value-display {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        
+        .network-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: #e9ecef;
+            color: #495057;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        .ethereum-badge {
+            background-color: #3c3c3d;
+            color: white;
+        }
+        
+        .wrong-network {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .info-icon {
+            color: #6c757d;
+            cursor: help;
+            margin-left: 5px;
+        }
+        
+        .tooltip-inner {
+            max-width: 300px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .balance-card {
+                padding: 10px;
+            }
+            
+            .balance-value {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <img src="https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg" alt="WBTC Logo" class="logo">
+            <h1 class="mb-2">WBTC Bankroll Interface</h1>
+            <p class="text-muted">Interact with the WBTC bankroll smart contract on Ethereum</p>
+        </div>
+        
+        <!-- Status Messages -->
+        <div id="status" class="mb-4"></div>
+        
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Wallet & Network Info -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="fas fa-wallet me-2"></i>
+                            Wallet
+                        </span>
+                        <span id="networkBadge" class="network-badge">
+                            <i class="fas fa-circle-notch fa-spin me-1"></i>
+                            Loading...
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">Account:</span>
+                                <button id="connectWallet" class="btn btn-primary">
+                                    <i class="fas fa-plug me-2"></i>
+                                    Connect Wallet
+                                </button>
+                            </div>
+                            <div id="accountDisplay" class="address-display">Not connected</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-2">Your Balances:</small>
+                            
+                            <div class="balance-card">
+                                <span class="balance-label">WBTC:</span>
+                                <span id="wbtcBalance" class="balance-value">-</span>
+                            </div>
+                            
+                            <div class="balance-card">
+                                <span class="balance-label">NTV-b Tokens:</span>
+                                <span id="userBalance" class="balance-value">-</span>
+                            </div>
+                            
+                            <div class="balance-card">
+                                <span class="balance-label">Pending Payout:</span>
+                                <span id="payoutBalance" class="balance-value">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button id="withdrawBtn" class="btn btn-outline-secondary" disabled>
+                                <i class="fas fa-hand-holding-usd me-2"></i>
+                                Withdraw Payouts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bankroll Info -->
+            <div class="col-lg-8 mb-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Bankroll Information
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3">
+                                    <small class="text-muted">Contract Address:</small>
+                                    <div class="d-flex align-items-center mt-1">
+                                        <span id="bankrollAddress" class="address-display">0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6</span>
+                                        <a href="https://etherscan.io/address/0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6" target="_blank" class="ms-2">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <small class="text-muted d-block mb-1">WBTC Balance of Contract:</small>
+                                    <div id="tokenBalance" class="value-display">Loading...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-1">Current Token Price:</small>
+                                    <div id="tokenPrice" class="value-display">Loading...</div>
+                                    <small class="text-muted">WBTC per NTV-b</small>
+                                </div>
+                                
+                                <div>
+                                    <small class="text-muted d-block mb-1">Total Supply:</small>
+                                    <div id="totalSupply" class="value-display">Loading...</div>
+                                    <small class="text-muted">NTV-b Tokens</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-2 border-top">
+                            <div class="mb-2">
+                                <small class="text-muted">Tracked Address Balance:</small>
+                                <i class="fas fa-info-circle info-icon" data-bs-toggle="tooltip" title="Balance of the specific address 0xDa520bdaB7b196446099413f27d0fA77F72d9799"></i>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="address-display me-2">0xDa52...9799</span>
+                                <span id="specificWalletBalance" class="fw-bold">Loading...</span>
+                                <span class="ms-1">NTV-b</span>
+                                <a href="https://etherscan.io/token/0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6?a=0xDa520bdaB7b196446099413f27d0fA77F72d9799" target="_blank" class="ms-2">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Token Transaction Cards -->
+                <div class="row">
+                    <!-- Purchase Card -->
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Purchase Tokens
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="purchaseAmount" class="form-label">WBTC Amount:</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="purchaseAmount" placeholder="0.00000000" step="0.00000001" min="0">
+                                        <span class="input-group-text">WBTC</span>
+                                    </div>
+                                    <small class="text-muted">Enter the amount of WBTC to spend</small>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Estimated Tokens:</label>
+                                    <div class="input-group">
+                                        <span id="estimatedTokens" class="form-control bg-light">-</span>
+                                        <span class="input-group-text">NTV-b</span>
+                                    </div>
+                                    <small class="text-muted">Estimated NTV-b tokens you'll receive</small>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button id="purchaseBtn" class="btn btn-primary" disabled>
+                                        <i class="fas fa-exchange-alt me-2"></i>
+                                        Purchase Tokens
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sell Card -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Sell Tokens
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="sellAmount" class="form-label">NTV-b Amount:</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="sellAmount" placeholder="0.00000000" step="0.00000001" min="0">
+                                        <span class="input-group-text">NTV-b</span>
+                                    </div>
+                                    <small class="text-muted">Enter the amount of NTV-b to sell</small>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Estimated Return:</label>
+                                    <div class="input-group">
+                                        <span id="estimatedWbtc" class="form-control bg-light">-</span>
+                                        <span class="input-group-text">WBTC</span>
+                                    </div>
+                                    <small class="text-muted">Estimated WBTC you'll receive</small>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button id="sellBtn" class="btn btn-primary" disabled>
+                                        <i class="fas fa-exchange-alt me-2"></i>
+                                        Sell Tokens
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>This interface connects to the WBTC bankroll smart contract on Ethereum Mainnet.</p>
+            <p>Contract Address: <a href="https://etherscan.io/address/0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6" target="_blank">0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6</a></p>
+        </div>
+    </div>
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+        
+        // Bankroll Contract ABI (minimal version with only the functions we need)
+        const bankrollABI = [
+            // balanceOf
+            {
+                "constant": true,
+                "inputs": [{"name": "src", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // tokenPrice
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "tokenPrice",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // totalSupply
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "totalSupply",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // payoutOf
+            {
+                "constant": true,
+                "inputs": [{"name": "src", "type": "address"}],
+                "name": "payoutOf",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // token
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "token",
+                "outputs": [{"name": "", "type": "address"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // calculateTokensReceived
+            {
+                "constant": true,
+                "inputs": [{"name": "_currencyToSpend", "type": "uint256"}],
+                "name": "calculateTokensReceived",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // calculateCurrencyReceived
+            {
+                "constant": true,
+                "inputs": [{"name": "_tokensToSell", "type": "uint256"}],
+                "name": "calculateCurrencyReceived",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // purchase
+            {
+                "constant": false,
+                "inputs": [{"name": "amount_", "type": "uint256"}],
+                "name": "purchase",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // sell
+            {
+                "constant": false,
+                "inputs": [{"name": "wad", "type": "uint256"}],
+                "name": "sell",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // withdraw
+            {
+                "constant": false,
+                "inputs": [],
+                "name": "withdraw",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        // ERC20 (WBTC) ABI
+        const erc20ABI = [
+            // balanceOf
+            {
+                "constant": true,
+                "inputs": [{"name": "_owner", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "balance", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // approve
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "_spender", "type": "address"},
+                    {"name": "_value", "type": "uint256"}
+                ],
+                "name": "approve",
+                "outputs": [{"name": "", "type": "bool"}],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // decimals
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [{"name": "", "type": "uint8"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // Contract addresses
+        const BANKROLL_ADDRESS = '0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6';
+        const SPECIFIC_WALLET_ADDRESS = '0xDa520bdaB7b196446099413f27d0fA77F72d9799';
+        const ETHEREUM_MAINNET_CHAIN_ID = '0x1';
+        
+        let WBTC_ADDRESS; // We'll get this from the contract
+        
+        // Web3 instance
+        let web3;
+        let bankrollContract;
+        let wbtcContract;
+        let userAccount;
+        let wbtcDecimals = 8; // Default decimals for WBTC, will confirm from contract
+        let currentNetwork;
+
+        // Show status message
+        function showStatus(message, type = 'success') {
+            const statusElement = document.getElementById('status');
+            
+            let icon = '';
+            if (type === 'success') {
+                icon = '<i class="fas fa-check-circle status-icon"></i>';
+                statusElement.className = 'success';
+            } else if (type === 'error') {
+                icon = '<i class="fas fa-exclamation-circle status-icon"></i>';
+                statusElement.className = 'error';
+            } else if (type === 'loading') {
+                icon = '<i class="fas fa-spinner fa-spin status-icon"></i>';
+                statusElement.className = 'loading';
+            }
+            
+            statusElement.innerHTML = icon + message;
+            statusElement.style.display = 'block';
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 5000);
+            }
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Format a number with proper decimals
+        function formatAmount(amount, decimals, displayDecimals = null) {
+            if (displayDecimals === null) {
+                // For display purposes, limit WBTC to 8 decimal places
+                displayDecimals = decimals === 8 ? 8 : 5;
+            }
+            
+            // Parse the amount as a big integer
+            const amountNum = parseInt(amount);
+            if (isNaN(amountNum)) return '0';
+            
+            // Calculate the formatted amount
+            const formattedAmount = (amountNum / 10**parseInt(decimals)).toFixed(displayDecimals);
+            
+            // Handle trailing zeros
+            return parseFloat(formattedAmount).toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: displayDecimals
+            });
+        }
+
+        // Update button states based on connection status
+        function updateButtonStates() {
+            const isConnected = !!userAccount;
+            
+            document.getElementById('purchaseBtn').disabled = !isConnected;
+            document.getElementById('sellBtn').disabled = !isConnected;
+            document.getElementById('withdrawBtn').disabled = !isConnected;
+            
+            if (isConnected) {
+                document.getElementById('connectWallet').textContent = 'Connected';
+                document.getElementById('connectWallet').disabled = true;
+                document.getElementById('accountDisplay').textContent = shortenAddress(userAccount);
+            } else {
+                document.getElementById('connectWallet').innerHTML = '<i class="fas fa-plug me-2"></i>Connect Wallet';
+                document.getElementById('connectWallet').disabled = false;
+                document.getElementById('accountDisplay').textContent = 'Not connected';
+            }
+        }
+
+        // Shorten address for display
+        function shortenAddress(address) {
+            if (!address) return 'Not connected';
+            return address.substring(0, 6) + '...' + address.substring(address.length - 4);
+        }
+
+        // Update network badge
+        function updateNetworkBadge(chainId) {
+            const networkBadge = document.getElementById('networkBadge');
+            currentNetwork = chainId;
+            
+            if (chainId === ETHEREUM_MAINNET_CHAIN_ID) {
+                networkBadge.className = 'network-badge ethereum-badge';
+                networkBadge.innerHTML = '<i class="fab fa-ethereum me-1"></i>Ethereum Mainnet';
+            } else {
+                networkBadge.className = 'network-badge wrong-network';
+                networkBadge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Wrong Network';
+                
+                showStatus('Please switch to Ethereum Mainnet to interact with the WBTC bankroll contract.', 'error');
+            }
+        }
+
+        // Connect to MetaMask
+        async function connect() {
+            showStatus('Connecting to MetaMask...', 'loading');
+            
+            try {
+                // Check if MetaMask is installed
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('MetaMask not detected. Please install MetaMask to use this application.', 'error');
+                    return;
+                }
+                
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                if (!accounts || accounts.length === 0) {
+                    showStatus('No accounts found. Please unlock your MetaMask wallet.', 'error');
+                    return;
+                }
+                
+                // Store the user account
+                userAccount = accounts[0];
+                
+                // Check network
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                updateNetworkBadge(chainId);
+                
+                if (chainId !== ETHEREUM_MAINNET_CHAIN_ID) {
+                    showStatus('Please switch to Ethereum Mainnet to interact with the WBTC bankroll contract.', 'error');
+                    updateButtonStates();
+                    return;
+                }
+                
+                // Initialize Web3
+                web3 = new Web3(window.ethereum);
+                
+                // Initialize contracts
+                bankrollContract = new web3.eth.Contract(bankrollABI, BANKROLL_ADDRESS);
+                
+                // Get WBTC address from bankroll contract
+                WBTC_ADDRESS = await bankrollContract.methods.token().call();
+                wbtcContract = new web3.eth.Contract(erc20ABI, WBTC_ADDRESS);
+                
+                // Get WBTC decimals
+                try {
+                    wbtcDecimals = await wbtcContract.methods.decimals().call();
+                } catch (error) {
+                    console.error("Error getting WBTC decimals:", error);
+                    // Fallback to default 8 decimals for WBTC
+                }
+                
+                // Update UI
+                updateButtonStates();
+                refreshData();
+                
+                // Setup MetaMask event listeners
+                window.ethereum.on('accountsChanged', handleAccountsChanged);
+                window.ethereum.on('chainChanged', handleChainChanged);
+                
+                showStatus('Successfully connected to MetaMask.', 'success');
+            } catch (error) {
+                console.error('Connection error:', error);
+                showStatus('Error connecting to MetaMask: ' + error.message, 'error');
+                updateButtonStates();
+            }
+        }
+
+        // Handle accounts changed event
+        function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                // User logged out
+                userAccount = null;
+                showStatus('Wallet disconnected.', 'error');
+            } else if (accounts[0] !== userAccount) {
+                // User switched accounts
+                userAccount = accounts[0];
+                showStatus('Account changed to ' + shortenAddress(userAccount), 'success');
+                refreshData();
+            }
+            
+            updateButtonStates();
+        }
+
+        // Handle chain changed event
+        function handleChainChanged(chainId) {
+            // Force refresh on chain change
+            window.location.reload();
+        }
+
+        // Get specific wallet balance using RPC
+        async function getSpecificWalletBalance() {
+            try {
+                // Try multiple public RPC endpoints
+                const rpcEndpoints = [
+                    'https://eth.llamarpc.com',
+                    'https://ethereum.publicnode.com',
+                    'https://rpc.ankr.com/eth',
+                    'https://cloudflare-eth.com'
+                ];
+                
+                let readOnlyWeb3 = null;
+                
+                // Try each RPC until one works
+                for (const rpcUrl of rpcEndpoints) {
+                    try {
+                        readOnlyWeb3 = new Web3(rpcUrl);
+                        // Test the connection
+                        await readOnlyWeb3.eth.getBlockNumber();
+                        break;
+                    } catch (error) {
+                        console.error(`Failed to connect to ${rpcUrl}:`, error);
+                        continue;
+                    }
+                }
+                
+                if (!readOnlyWeb3) {
+                    throw new Error("Could not connect to any Ethereum RPC endpoint");
+                }
+                
+                // Create contract instance
+                const readOnlyContract = new readOnlyWeb3.eth.Contract(bankrollABI, BANKROLL_ADDRESS);
+                
+                // Get NTV-b balance of the specific wallet
+                const specificWalletBalance = await readOnlyContract.methods.balanceOf(SPECIFIC_WALLET_ADDRESS).call();
+                document.getElementById('specificWalletBalance').textContent = formatAmount(specificWalletBalance, 18);
+                
+                // Try getting basic contract info
+                try {
+                    // Get token price
+                    const tokenPrice = await readOnlyContract.methods.tokenPrice().call();
+                    document.getElementById('tokenPrice').textContent = formatAmount(tokenPrice, wbtcDecimals) + ' WBTC';
+                    
+                    // Get total supply
+                    const totalSupply = await readOnlyContract.methods.totalSupply().call();
+                    document.getElementById('totalSupply').textContent = formatAmount(totalSupply, 18) + ' NTV-b';
+                    
+                    // Get WBTC address
+                    WBTC_ADDRESS = await readOnlyContract.methods.token().call();
+                    
+                    // Create WBTC contract instance
+                    const wbtcReadOnlyContract = new readOnlyWeb3.eth.Contract(erc20ABI, WBTC_ADDRESS);
+                    
+                    // Get WBTC balance of the bankroll
+                    const bankrollWbtcBalance = await wbtcReadOnlyContract.methods.balanceOf(BANKROLL_ADDRESS).call();
+                    document.getElementById('tokenBalance').textContent = formatAmount(bankrollWbtcBalance, wbtcDecimals) + ' WBTC';
+                } catch (error) {
+                    console.error("Error getting additional contract info:", error);
+                }
+                
+            } catch (error) {
+                console.error("Error getting specific wallet balance:", error);
+                document.getElementById('specificWalletBalance').innerHTML = 
+                    `<a href="https://etherscan.io/token/${BANKROLL_ADDRESS}?a=${SPECIFIC_WALLET_ADDRESS}" target="_blank">
+                        View on Etherscan
+                    </a>`;
+            }
+        }
+
+        // Refresh user account data
+        async function refreshData() {
+            if (!web3 || !bankrollContract || !userAccount) {
+                return;
+            }
+            
+            try {
+                // Get WBTC balance
+                const wbtcBalance = await wbtcContract.methods.balanceOf(userAccount).call();
+                document.getElementById('wbtcBalance').textContent = formatAmount(wbtcBalance, wbtcDecimals);
+                
+                // Get NTV-b balance
+                const ntvbBalance = await bankrollContract.methods.balanceOf(userAccount).call();
+                document.getElementById('userBalance').textContent = formatAmount(ntvbBalance, 18);
+                
+                // Get payout balance
+                const payoutBalance = await bankrollContract.methods.payoutOf(userAccount).call();
+                document.getElementById('payoutBalance').textContent = formatAmount(payoutBalance, wbtcDecimals);
+                
+                // Enable/disable withdraw button based on payout balance
+                document.getElementById('withdrawBtn').disabled = parseInt(payoutBalance) <= 0;
+                
+                // Get token price
+                const tokenPrice = await bankrollContract.methods.tokenPrice().call();
+                document.getElementById('tokenPrice').textContent = formatAmount(tokenPrice, wbtcDecimals) + ' WBTC';
+                
+                // Get total supply
+                const totalSupply = await bankrollContract.methods.totalSupply().call();
+                document.getElementById('totalSupply').textContent = formatAmount(totalSupply, 18) + ' NTV-b';
+                
+                // Get WBTC balance of the bankroll
+                const bankrollWbtcBalance = await wbtcContract.methods.balanceOf(BANKROLL_ADDRESS).call();
+                document.getElementById('tokenBalance').textContent = formatAmount(bankrollWbtcBalance, wbtcDecimals) + ' WBTC';
+            } catch (error) {
+                console.error("Error refreshing data:", error);
+                showStatus('Error fetching account data: ' + error.message, 'error');
+            }
+        }
+
+        // Update estimated tokens when purchase amount changes
+        async function updateEstimatedTokens() {
+            if (!web3 || !bankrollContract) return;
+            
+            const purchaseAmount = document.getElementById('purchaseAmount').value;
+            if (!purchaseAmount || isNaN(purchaseAmount) || parseFloat(purchaseAmount) <= 0) {
+                document.getElementById('estimatedTokens').textContent = '-';
+                return;
+            }
+            
+            try {
+                // Convert input amount to WBTC amount with proper decimals
+                const wbtcAmount = Math.floor(parseFloat(purchaseAmount) * 10**wbtcDecimals).toString();
+                
+                const estimatedTokens = await bankrollContract.methods.calculateTokensReceived(wbtcAmount).call();
+                document.getElementById('estimatedTokens').textContent = formatAmount(estimatedTokens, 18);
+            } catch (error) {
+                console.error("Error calculating estimated tokens:", error);
+                document.getElementById('estimatedTokens').textContent = 'Error';
+            }
+        }
+
+        // Update estimated WBTC when sell amount changes
+        async function updateEstimatedWbtc() {
+            if (!web3 || !bankrollContract) return;
+            
+            const sellAmount = document.getElementById('sellAmount').value;
+            if (!sellAmount || isNaN(sellAmount) || parseFloat(sellAmount) <= 0) {
+                document.getElementById('estimatedWbtc').textContent = '-';
+                return;
+            }
+            
+            try {
+                // Convert input amount to token amount with 18 decimals
+                const tokenAmount = web3.utils.toWei(sellAmount, 'ether');
+                
+                const estimatedWbtc = await bankrollContract.methods.calculateCurrencyReceived(tokenAmount).call();
+                document.getElementById('estimatedWbtc').textContent = formatAmount(estimatedWbtc, wbtcDecimals);
+            } catch (error) {
+                console.error("Error calculating estimated WBTC:", error);
+                document.getElementById('estimatedWbtc').textContent = 'Error';
+            }
+        }
+
+        // Purchase tokens
+        async function purchaseTokens() {
+            if (!web3 || !bankrollContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            // Check network
+            if (currentNetwork !== ETHEREUM_MAINNET_CHAIN_ID) {
+                showStatus('Please switch to Ethereum Mainnet to interact with the WBTC bankroll contract.', 'error');
+                return;
+            }
+            
+            const purchaseAmount = document.getElementById('purchaseAmount').value;
+            if (!purchaseAmount || isNaN(purchaseAmount) || parseFloat(purchaseAmount) <= 0) {
+                showStatus('Please enter a valid WBTC amount', 'error');
+                return;
+            }
+            
+            try {
+                // Convert input amount to WBTC amount with proper decimals
+                const wbtcAmount = Math.floor(parseFloat(purchaseAmount) * 10**wbtcDecimals).toString();
+                
+                // First approve WBTC transfer
+                showStatus('Approving WBTC transfer...', 'loading');
+                
+                const purchaseBtn = document.getElementById('purchaseBtn');
+                purchaseBtn.disabled = true;
+                purchaseBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Approving...';
+                
+                try {
+                    await wbtcContract.methods.approve(BANKROLL_ADDRESS, wbtcAmount).send({ from: userAccount });
+                    
+                    // Then purchase tokens
+                    purchaseBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Purchasing...';
+                    showStatus('Purchasing NTV-b tokens...', 'loading');
+                    
+                    await bankrollContract.methods.purchase(wbtcAmount).send({ from: userAccount });
+                    
+                    showStatus('Purchase successful!', 'success');
+                    
+                    // Reset the input field
+                    document.getElementById('purchaseAmount').value = '';
+                    document.getElementById('estimatedTokens').textContent = '-';
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    purchaseBtn.disabled = false;
+                    purchaseBtn.innerHTML = '<i class="fas fa-exchange-alt me-2"></i>Purchase Tokens';
+                }
+                
+            } catch (error) {
+                console.error("Error during purchase:", error);
+                showStatus('Error during purchase: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('purchaseBtn').disabled = false;
+                document.getElementById('purchaseBtn').innerHTML = '<i class="fas fa-exchange-alt me-2"></i>Purchase Tokens';
+            }
+        }
+
+        // Sell tokens
+        async function sellTokens() {
+            if (!web3 || !bankrollContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            // Check network
+            if (currentNetwork !== ETHEREUM_MAINNET_CHAIN_ID) {
+                showStatus('Please switch to Ethereum Mainnet to interact with the WBTC bankroll contract.', 'error');
+                return;
+            }
+            
+            const sellAmount = document.getElementById('sellAmount').value;
+            if (!sellAmount || isNaN(sellAmount) || parseFloat(sellAmount) <= 0) {
+                showStatus('Please enter a valid NTV-b amount', 'error');
+                return;
+            }
+            
+            try {
+                const tokenAmount = web3.utils.toWei(sellAmount, 'ether');
+                
+                // Get user's balance
+                const userBalance = await bankrollContract.methods.balanceOf(userAccount).call();
+                if (BigInt(tokenAmount) > BigInt(userBalance)) {
+                    showStatus('Not enough NTV-b tokens in your wallet', 'error');
+                    return;
+                }
+                
+                // Sell tokens
+                showStatus('Selling NTV-b tokens...', 'loading');
+                
+                const sellBtn = document.getElementById('sellBtn');
+                sellBtn.disabled = true;
+                sellBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Selling...';
+                
+                try {
+                    await bankrollContract.methods.sell(tokenAmount).send({ from: userAccount });
+                    
+                    showStatus('Tokens sold successfully! Don\'t forget to withdraw your WBTC.', 'success');
+                    
+                    // Reset the input field
+                    document.getElementById('sellAmount').value = '';
+                    document.getElementById('estimatedWbtc').textContent = '-';
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    sellBtn.disabled = false;
+                    sellBtn.innerHTML = '<i class="fas fa-exchange-alt me-2"></i>Sell Tokens';
+                }
+                
+            } catch (error) {
+                console.error("Error during sell:", error);
+                showStatus('Error during sell: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('sellBtn').disabled = false;
+                document.getElementById('sellBtn').innerHTML = '<i class="fas fa-exchange-alt me-2"></i>Sell Tokens';
+            }
+        }
+
+        // Withdraw WBTC
+        async function withdrawWbtc() {
+            if (!web3 || !bankrollContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            // Check network
+            if (currentNetwork !== ETHEREUM_MAINNET_CHAIN_ID) {
+                showStatus('Please switch to Ethereum Mainnet to interact with the WBTC bankroll contract.', 'error');
+                return;
+            }
+            
+            try {
+                const payoutBalance = await bankrollContract.methods.payoutOf(userAccount).call();
+                if (parseInt(payoutBalance) <= 0) {
+                    showStatus('You have no WBTC to withdraw', 'error');
+                    return;
+                }
+                
+                // Withdraw WBTC
+                showStatus('Withdrawing WBTC...', 'loading');
+                
+                const withdrawBtn = document.getElementById('withdrawBtn');
+                withdrawBtn.disabled = true;
+                withdrawBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Withdrawing...';
+                
+                try {
+                    await bankrollContract.methods.withdraw().send({ from: userAccount });
+                    
+                    showStatus('WBTC withdrawn successfully!', 'success');
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    withdrawBtn.disabled = false;
+                    withdrawBtn.innerHTML = '<i class="fas fa-hand-holding-usd me-2"></i>Withdraw Payouts';
+                }
+                
+            } catch (error) {
+                console.error("Error during withdrawal:", error);
+                showStatus('Error during withdrawal: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('withdrawBtn').disabled = false;
+                document.getElementById('withdrawBtn').innerHTML = '<i class="fas fa-hand-holding-usd me-2"></i>Withdraw Payouts';
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('connectWallet').addEventListener('click', connect);
+            document.getElementById('purchaseBtn').addEventListener('click', purchaseTokens);
+            document.getElementById('sellBtn').addEventListener('click', sellTokens);
+            document.getElementById('withdrawBtn').addEventListener('click', withdrawWbtc);
+            
+            // Set up input change listeners
+            document.getElementById('purchaseAmount').addEventListener('input', updateEstimatedTokens);
+            document.getElementById('sellAmount').addEventListener('input', updateEstimatedWbtc);
+            
+            // Get specific wallet balance immediately
+            getSpecificWalletBalance();
+            
+            // Check if MetaMask is already connected
+            if (typeof window.ethereum !== 'undefined') {
+                // Set network badge to loading
+                document.getElementById('networkBadge').innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Loading...';
+                
+                // Check if already logged in
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts && accounts.length > 0) {
+                            // Auto-connect if accounts are available
+                            connect();
+                        }
+                    })
+                    .catch(e => {
+                        console.log('No pre-authorized accounts found');
+                        document.getElementById('networkBadge').innerHTML = '<i class="fas fa-plug me-1"></i>Not Connected';
+                    });
+            } else {
+                // MetaMask not detected
+                document.getElementById('networkBadge').innerHTML = '<i class="fas fa-times-circle me-1"></i>No Wallet';
+                document.getElementById('connectWallet').innerHTML = '<i class="fas fa-download me-2"></i>Install MetaMask';
+                document.getElementById('connectWallet').addEventListener('click', function() {
+                    window.open('https://metamask.io/download/', '_blank');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
