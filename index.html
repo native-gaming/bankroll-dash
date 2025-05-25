@@ -437,6 +437,119 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Staking Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-coins me-2"></i>
+                        NTV-b Staking
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3">
+                                    <small class="text-muted">Staking Contract:</small>
+                                    <div class="d-flex align-items-center mt-1">
+                                        <span class="address-display">0x25cc12d2AFA8E665cdbf7edE5C8b5d86Fc0AA024</span>
+                                        <a href="https://etherscan.io/address/0x25cc12d2AFA8E665cdbf7edE5C8b5d86Fc0AA024" target="_blank" class="ms-2">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="balance-card">
+                                    <span class="balance-label">Staked Balance:</span>
+                                    <span id="stakedBalance" class="balance-value">-</span>
+                                </div>
+                                
+                                <div class="balance-card">
+                                    <span class="balance-label">Unclaimed Dividends:</span>
+                                    <span id="unclaimedDividends" class="balance-value">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-2">Pending Actions:</small>
+                                    
+                                    <div id="pendingStakeInfo" class="balance-card" style="display: none;">
+                                        <div>
+                                            <span class="balance-label">Pending Stake:</span>
+                                            <span id="pendingStakeAmount" class="balance-value">-</span>
+                                        </div>
+                                        <button id="executeStakeBtn" class="btn btn-sm btn-outline-primary ms-2" disabled>
+                                            Execute
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="pendingUnstakeInfo" class="balance-card" style="display: none;">
+                                        <div>
+                                            <span class="balance-label">Pending Unstake:</span>
+                                            <span id="pendingUnstakeAmount" class="balance-value">-</span>
+                                        </div>
+                                        <button id="executeUnstakeBtn" class="btn btn-sm btn-outline-primary ms-2" disabled>
+                                            Execute
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="noPendingActions" class="text-muted">
+                                        No pending actions
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button id="claimDividendsBtn" class="btn btn-outline-secondary" disabled>
+                                        <i class="fas fa-gift me-2"></i>
+                                        Claim Dividends
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Unstake Section -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Unstake Tokens</h6>
+                                <div class="mb-3">
+                                    <label for="unstakeAmount" class="form-label">Amount to Unstake:</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="unstakeAmount" placeholder="0.00000000" step="0.00000001" min="0">
+                                        <span class="input-group-text">NTV-b</span>
+                                    </div>
+                                    <small class="text-muted">Minimum unstake: 0.05 NTV-b</small>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button id="unstakeBtn" class="btn btn-primary" disabled>
+                                        <i class="fas fa-unlock me-2"></i>
+                                        Unstake Amount
+                                    </button>
+                                    <button id="unstakeAllBtn" class="btn btn-outline-primary" disabled>
+                                        <i class="fas fa-unlock-alt me-2"></i>
+                                        Unstake All
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="alert alert-info mt-4 mt-md-0">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Staking Information
+                                    </h6>
+                                    <ul class="mb-0 small">
+                                        <li>Unstaking requires a 24-hour delay for security</li>
+                                        <li>Pending dividends are automatically claimed when unstaking</li>
+                                        <li>Execute functions can be called by anyone after the delay</li>
+                                        <li>Minimum balance to unstake: 0.05 NTV-b tokens</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -461,6 +574,140 @@
         });
         
         // Bankroll Contract ABI (minimal version with only the functions we need)
+        // Staking Contract ABI (minimal version with only the functions we need)
+        const stakingABI = [
+            // balanceOf
+            {
+                "constant": true,
+                "inputs": [{"name": "src", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // stake
+            {
+                "constant": false,
+                "inputs": [{"name": "_tokenAmount", "type": "uint256"}],
+                "name": "stake",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // unstake
+            {
+                "constant": false,
+                "inputs": [{"name": "_tokenAmount", "type": "uint256"}],
+                "name": "unstake",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // unstakeAll
+            {
+                "constant": false,
+                "inputs": [],
+                "name": "unstakeAll",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // executeStake
+            {
+                "constant": false,
+                "inputs": [{"name": "_stakeHolder", "type": "address"}],
+                "name": "executeStake",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // executeUnstake
+            {
+                "constant": false,
+                "inputs": [{"name": "_stakeHolder", "type": "address"}],
+                "name": "executeUnstake",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            // toStakeBalance
+            {
+                "constant": true,
+                "inputs": [{"name": "", "type": "address"}],
+                "name": "toStakeBalance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // toStakeExecutionTime
+            {
+                "constant": true,
+                "inputs": [{"name": "", "type": "address"}],
+                "name": "toStakeExecutionTime",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // unstakeBalance
+            {
+                "constant": true,
+                "inputs": [{"name": "", "type": "address"}],
+                "name": "unstakeBalance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // unstakeBalanceAll
+            {
+                "constant": true,
+                "inputs": [{"name": "", "type": "address"}],
+                "name": "unstakeBalanceAll",
+                "outputs": [{"name": "", "type": "bool"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // unstakeBalanceExecutionTime
+            {
+                "constant": true,
+                "inputs": [{"name": "", "type": "address"}],
+                "name": "unstakeBalanceExecutionTime",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // viewAllUnclaimedDividends
+            {
+                "constant": true,
+                "inputs": [{"name": "src", "type": "address"}],
+                "name": "viewAllUnclaimedDividends",
+                "outputs": [{"name": "", "type": "int256"}, {"name": "", "type": "uint256"}, {"name": "", "type": "uint256"}],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            // claimAllDividends
+            {
+                "constant": false,
+                "inputs": [],
+                "name": "claimAllDividends",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
         const bankrollABI = [
             // balanceOf
             {
@@ -603,6 +850,7 @@
 
         // Contract addresses
         const BANKROLL_ADDRESS = '0x4bc83868ed0F49a600B8B2d94ae89cCD4cBf3Fe6';
+        const STAKING_ADDRESS = '0x25cc12d2AFA8E665cdbf7edE5C8b5d86Fc0AA024';
         const SPECIFIC_WALLET_ADDRESS = '0xDa520bdaB7b196446099413f27d0fA77F72d9799';
         const ETHEREUM_MAINNET_CHAIN_ID = '0x1';
         
@@ -611,6 +859,7 @@
         // Web3 instance
         let web3;
         let bankrollContract;
+        let stakingContract;
         let wbtcContract;
         let userAccount;
         let wbtcDecimals = 8; // Default decimals for WBTC, will confirm from contract
@@ -673,6 +922,9 @@
             document.getElementById('purchaseBtn').disabled = !isConnected;
             document.getElementById('sellBtn').disabled = !isConnected;
             document.getElementById('withdrawBtn').disabled = !isConnected;
+            document.getElementById('unstakeBtn').disabled = !isConnected;
+            document.getElementById('unstakeAllBtn').disabled = !isConnected;
+            document.getElementById('claimDividendsBtn').disabled = !isConnected;
             
             if (isConnected) {
                 document.getElementById('connectWallet').textContent = 'Connected';
@@ -744,6 +996,7 @@
                 
                 // Initialize contracts
                 bankrollContract = new web3.eth.Contract(bankrollABI, BANKROLL_ADDRESS);
+                stakingContract = new web3.eth.Contract(stakingABI, STAKING_ADDRESS);
                 
                 // Get WBTC address from bankroll contract
                 WBTC_ADDRESS = await bankrollContract.methods.token().call();
@@ -897,6 +1150,86 @@
                 // Get WBTC balance of the bankroll
                 const bankrollWbtcBalance = await wbtcContract.methods.balanceOf(BANKROLL_ADDRESS).call();
                 document.getElementById('tokenBalance').textContent = formatAmount(bankrollWbtcBalance, wbtcDecimals) + ' WBTC';
+                
+                // Get staking data
+                if (stakingContract) {
+                    // Get staked balance
+                    const stakedBalance = await stakingContract.methods.balanceOf(userAccount).call();
+                    document.getElementById('stakedBalance').textContent = formatAmount(stakedBalance, 18) + ' NTV-b';
+                    
+                    // Get unclaimed dividends
+                    try {
+                        const dividendData = await stakingContract.methods.viewAllUnclaimedDividends(userAccount).call();
+                        const unclaimedDividends = dividendData[0]; // First element is the dividend amount
+                        document.getElementById('unclaimedDividends').textContent = formatAmount(unclaimedDividends, 18) + ' NTV-b';
+                        
+                        // Enable/disable claim button based on dividends
+                        document.getElementById('claimDividendsBtn').disabled = parseInt(unclaimedDividends) <= 0;
+                    } catch (error) {
+                        console.error("Error getting unclaimed dividends:", error);
+                        document.getElementById('unclaimedDividends').textContent = '0 NTV-b';
+                    }
+                    
+                    // Check for pending unstakes
+                    const unstakeBalance = await stakingContract.methods.unstakeBalance(userAccount).call();
+                    const unstakeBalanceAll = await stakingContract.methods.unstakeBalanceAll(userAccount).call();
+                    const unstakeExecutionTime = await stakingContract.methods.unstakeBalanceExecutionTime(userAccount).call();
+                    
+                    // Check for pending stakes
+                    const toStakeBalance = await stakingContract.methods.toStakeBalance(userAccount).call();
+                    const toStakeExecutionTime = await stakingContract.methods.toStakeExecutionTime(userAccount).call();
+                    
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    
+                    // Update pending stake info
+                    if (parseInt(toStakeBalance) > 0) {
+                        document.getElementById('pendingStakeInfo').style.display = 'flex';
+                        document.getElementById('pendingStakeAmount').textContent = formatAmount(toStakeBalance, 18) + ' NTV-b';
+                        
+                        const canExecute = currentTime >= parseInt(toStakeExecutionTime);
+                        document.getElementById('executeStakeBtn').disabled = !canExecute;
+                        
+                        if (!canExecute) {
+                            const timeLeft = parseInt(toStakeExecutionTime) - currentTime;
+                            const hours = Math.floor(timeLeft / 3600);
+                            const minutes = Math.floor((timeLeft % 3600) / 60);
+                            document.getElementById('executeStakeBtn').textContent = `${hours}h ${minutes}m`;
+                        } else {
+                            document.getElementById('executeStakeBtn').textContent = 'Execute';
+                        }
+                    } else {
+                        document.getElementById('pendingStakeInfo').style.display = 'none';
+                    }
+                    
+                    // Update pending unstake info
+                    if (parseInt(unstakeBalance) > 0 || unstakeBalanceAll) {
+                        document.getElementById('pendingUnstakeInfo').style.display = 'flex';
+                        
+                        if (unstakeBalanceAll) {
+                            document.getElementById('pendingUnstakeAmount').textContent = 'All staked tokens';
+                        } else {
+                            document.getElementById('pendingUnstakeAmount').textContent = formatAmount(unstakeBalance, 18) + ' NTV-b';
+                        }
+                        
+                        const canExecute = currentTime >= parseInt(unstakeExecutionTime);
+                        document.getElementById('executeUnstakeBtn').disabled = !canExecute;
+                        
+                        if (!canExecute) {
+                            const timeLeft = parseInt(unstakeExecutionTime) - currentTime;
+                            const hours = Math.floor(timeLeft / 3600);
+                            const minutes = Math.floor((timeLeft % 3600) / 60);
+                            document.getElementById('executeUnstakeBtn').textContent = `${hours}h ${minutes}m`;
+                        } else {
+                            document.getElementById('executeUnstakeBtn').textContent = 'Execute';
+                        }
+                    } else {
+                        document.getElementById('pendingUnstakeInfo').style.display = 'none';
+                    }
+                    
+                    // Show/hide "no pending actions" message
+                    const hasPendingActions = (parseInt(toStakeBalance) > 0) || (parseInt(unstakeBalance) > 0) || unstakeBalanceAll;
+                    document.getElementById('noPendingActions').style.display = hasPendingActions ? 'none' : 'block';
+                }
             } catch (error) {
                 console.error("Error refreshing data:", error);
                 showStatus('Error fetching account data: ' + error.message, 'error');
@@ -1129,6 +1462,246 @@
             }
         }
 
+        // Unstake tokens
+        async function unstakeTokens() {
+            if (!web3 || !stakingContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            // Check network
+            if (currentNetwork !== ETHEREUM_MAINNET_CHAIN_ID) {
+                showStatus('Please switch to Ethereum Mainnet to interact with the staking contract.', 'error');
+                return;
+            }
+            
+            const unstakeAmount = document.getElementById('unstakeAmount').value;
+            if (!unstakeAmount || isNaN(unstakeAmount) || parseFloat(unstakeAmount) <= 0) {
+                showStatus('Please enter a valid amount to unstake', 'error');
+                return;
+            }
+            
+            // Check minimum unstake amount (0.05 NTV-b)
+            if (parseFloat(unstakeAmount) < 0.05) {
+                showStatus('Minimum unstake amount is 0.05 NTV-b', 'error');
+                return;
+            }
+            
+            try {
+                const tokenAmount = web3.utils.toWei(unstakeAmount, 'ether');
+                
+                // Get user's staked balance
+                const stakedBalance = await stakingContract.methods.balanceOf(userAccount).call();
+                if (BigInt(tokenAmount) > BigInt(stakedBalance)) {
+                    showStatus('Not enough staked NTV-b tokens', 'error');
+                    return;
+                }
+                
+                // Initiate unstake
+                showStatus('Initiating unstake...', 'loading');
+                
+                const unstakeBtn = document.getElementById('unstakeBtn');
+                unstakeBtn.disabled = true;
+                unstakeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Unstaking...';
+                
+                try {
+                    await stakingContract.methods.unstake(tokenAmount).send({ from: userAccount });
+                    
+                    showStatus('Unstake initiated! You can execute the unstake after 24 hours.', 'success');
+                    
+                    // Reset the input field
+                    document.getElementById('unstakeAmount').value = '';
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    unstakeBtn.disabled = false;
+                    unstakeBtn.innerHTML = '<i class="fas fa-unlock me-2"></i>Unstake Amount';
+                }
+                
+            } catch (error) {
+                console.error("Error during unstake:", error);
+                showStatus('Error during unstake: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('unstakeBtn').disabled = false;
+                document.getElementById('unstakeBtn').innerHTML = '<i class="fas fa-unlock me-2"></i>Unstake Amount';
+            }
+        }
+
+        // Unstake all tokens
+        async function unstakeAll() {
+            if (!web3 || !stakingContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            // Check network
+            if (currentNetwork !== ETHEREUM_MAINNET_CHAIN_ID) {
+                showStatus('Please switch to Ethereum Mainnet to interact with the staking contract.', 'error');
+                return;
+            }
+            
+            try {
+                // Get user's staked balance
+                const stakedBalance = await stakingContract.methods.balanceOf(userAccount).call();
+                if (parseInt(stakedBalance) === 0) {
+                    showStatus('You have no staked NTV-b tokens', 'error');
+                    return;
+                }
+                
+                // Initiate unstake all
+                showStatus('Initiating unstake all...', 'loading');
+                
+                const unstakeAllBtn = document.getElementById('unstakeAllBtn');
+                unstakeAllBtn.disabled = true;
+                unstakeAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Unstaking All...';
+                
+                try {
+                    await stakingContract.methods.unstakeAll().send({ from: userAccount });
+                    
+                    showStatus('Unstake all initiated! You can execute the unstake after 24 hours.', 'success');
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    unstakeAllBtn.disabled = false;
+                    unstakeAllBtn.innerHTML = '<i class="fas fa-unlock-alt me-2"></i>Unstake All';
+                }
+                
+            } catch (error) {
+                console.error("Error during unstake all:", error);
+                showStatus('Error during unstake all: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('unstakeAllBtn').disabled = false;
+                document.getElementById('unstakeAllBtn').innerHTML = '<i class="fas fa-unlock-alt me-2"></i>Unstake All';
+            }
+        }
+
+        // Execute stake
+        async function executeStake() {
+            if (!web3 || !stakingContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Executing stake...', 'loading');
+                
+                const executeStakeBtn = document.getElementById('executeStakeBtn');
+                executeStakeBtn.disabled = true;
+                executeStakeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                
+                try {
+                    await stakingContract.methods.executeStake(userAccount).send({ from: userAccount });
+                    
+                    showStatus('Stake executed successfully!', 'success');
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    executeStakeBtn.disabled = false;
+                    executeStakeBtn.textContent = 'Execute';
+                }
+                
+            } catch (error) {
+                console.error("Error executing stake:", error);
+                showStatus('Error executing stake: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('executeStakeBtn').disabled = false;
+                document.getElementById('executeStakeBtn').textContent = 'Execute';
+            }
+        }
+
+        // Execute unstake
+        async function executeUnstake() {
+            if (!web3 || !stakingContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Executing unstake...', 'loading');
+                
+                const executeUnstakeBtn = document.getElementById('executeUnstakeBtn');
+                executeUnstakeBtn.disabled = true;
+                executeUnstakeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                
+                try {
+                    await stakingContract.methods.executeUnstake(userAccount).send({ from: userAccount });
+                    
+                    showStatus('Unstake executed successfully!', 'success');
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    executeUnstakeBtn.disabled = false;
+                    executeUnstakeBtn.textContent = 'Execute';
+                }
+                
+            } catch (error) {
+                console.error("Error executing unstake:", error);
+                showStatus('Error executing unstake: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('executeUnstakeBtn').disabled = false;
+                document.getElementById('executeUnstakeBtn').textContent = 'Execute';
+            }
+        }
+
+        // Claim dividends
+        async function claimDividends() {
+            if (!web3 || !stakingContract || !userAccount) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Claiming dividends...', 'loading');
+                
+                const claimBtn = document.getElementById('claimDividendsBtn');
+                claimBtn.disabled = true;
+                claimBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Claiming...';
+                
+                try {
+                    await stakingContract.methods.claimAllDividends().send({ from: userAccount });
+                    
+                    showStatus('Dividends claimed successfully!', 'success');
+                    
+                    // Refresh data
+                    refreshData();
+                } catch (txError) {
+                    console.error("Transaction error:", txError);
+                    showStatus('Transaction failed: ' + (txError.message || 'Unknown error'), 'error');
+                } finally {
+                    claimBtn.disabled = false;
+                    claimBtn.innerHTML = '<i class="fas fa-gift me-2"></i>Claim Dividends';
+                }
+                
+            } catch (error) {
+                console.error("Error claiming dividends:", error);
+                showStatus('Error claiming dividends: ' + error.message, 'error');
+                
+                // Reset button
+                document.getElementById('claimDividendsBtn').disabled = false;
+                document.getElementById('claimDividendsBtn').innerHTML = '<i class="fas fa-gift me-2"></i>Claim Dividends';
+            }
+        }
+
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             // Set up event listeners
@@ -1136,6 +1709,11 @@
             document.getElementById('purchaseBtn').addEventListener('click', purchaseTokens);
             document.getElementById('sellBtn').addEventListener('click', sellTokens);
             document.getElementById('withdrawBtn').addEventListener('click', withdrawWbtc);
+            document.getElementById('unstakeBtn').addEventListener('click', unstakeTokens);
+            document.getElementById('unstakeAllBtn').addEventListener('click', unstakeAll);
+            document.getElementById('executeStakeBtn').addEventListener('click', executeStake);
+            document.getElementById('executeUnstakeBtn').addEventListener('click', executeUnstake);
+            document.getElementById('claimDividendsBtn').addEventListener('click', claimDividends);
             
             // Set up input change listeners
             document.getElementById('purchaseAmount').addEventListener('input', updateEstimatedTokens);
@@ -1169,6 +1747,13 @@
                     window.open('https://metamask.io/download/', '_blank');
                 });
             }
+            
+            // Set up periodic refresh to update pending action timers
+            setInterval(() => {
+                if (userAccount && stakingContract) {
+                    refreshData();
+                }
+            }, 30000); // Refresh every 30 seconds
         });
     </script>
 </body>
